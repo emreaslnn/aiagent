@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Pro - Yatırımcı Sunumu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .slide.active {
+            display: flex;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .slide h1 {
+            font-size: 3.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .slide h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #FFD700;
+        }
+
+        .slide h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #87CEEB;
+        }
+
+        .slide p {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            max-width: 800px;
+        }
+
+        .highlight-box {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FFD700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .problem-list {
+            text-align: left;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .problem-list li {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .problem-list li::before {
+            content: "❌";
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+        }
+
+        .solution-list li::before {
+            content: "✅";
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+        }
+
+        .big-number {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .revenue-table {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .revenue-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .revenue-table th,
+        .revenue-table td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .revenue-table th {
+            background: rgba(255,255,255,0.2);
+            font-weight: bold;
+        }
+
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ff8787);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .animate-number {
+            animation: countUp 1s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px;
+            }
+            
+            .slide h1 {
+                font-size: 2.5rem;
+            }
+            
+            .slide h2 {
+                font-size: 2rem;
+            }
+            
+            .slide p {
+                font-size: 1.1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">9</span>
+        </div>
+
+        <!-- Slide 1: Kapak -->
+        <div class="slide active">
+            <div class="icon">🤖</div>
+            <h1>AI Agent Pro</h1>
+            <h2>Türkiye'nin İlk AI Agent Platformu</h2>
+            <p>Her sektör için hazır AI asistanları</p>
+            <div class="highlight-box">
+                <p><strong>5 Milyon TL Yatırım Fırsatı</strong></p>
+                <p>%17 Hisse | 10-16x Getiri Potansiyeli</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Problem -->
+        <div class="slide">
+            <div class="icon">🚨</div>
+            <h2>BÜYÜK PROBLEM!</h2>
+            <div class="big-number">15 Milyar ₺</div>
+            <p><strong>Türkiye'de boş kalan AI pazarı</strong></p>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-number">2.5M</span>
+                    <div class="stat-label">Küçük İşletme</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">%80</span>
+                    <div class="stat-label">Manuel Müşteri Hizmetleri</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">%85</span>
+                    <div class="stat-label">AI İstiyor Ama Bulamıyor</div>
+                </div>
+            </div>
+
+            <ul class="problem-list">
+                <li>Mevcut çözümler çok pahalı (15-50K ₺/ay)</li>
+                <li>Türkçe desteği yok</li>
+                <li>Kurulum çok zor (6 ay)</li>
+                <li>Sektörel özelleştirme yok</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Çözüm -->
+        <div class="slide">
+            <div class="icon">💡</div>
+            <h2>ÇÖZÜMÜMÜZ</h2>
+            <h3>Hazır AI Asistanları - Her Sektör İçin!</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-number">200+</span>
+                    <div class="stat-label">Hazır Template</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">1 Hafta</span>
+                    <div class="stat-label">Kurulum Süresi</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">500₺</span>
+                    <div class="stat-label">Aylık Başlangıç</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">%90</span>
+                    <div class="stat-label">Daha Ucuz</div>
+                </div>
+            </div>
+
+            <ul class="problem-list solution-list">
+                <li>🏥 Doktor: Randevu + semptom analizi</li>
+                <li>🏠 Emlak: Ev bilgisi + görüşme ayarlama</li>
+                <li>🍽️ Restoran: Rezervasyon + menü önerisi</li>
+                <li>🛒 E-ticaret: Ürün önerisi + sipariş alma</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Pazar -->
+        <div class="slide">
+            <div class="icon">📊</div>
+            <h2>PAZAR BÜYÜKLÜĞÜ</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-number">500K</span>
+                    <div class="stat-label">Hedef İşletme</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">700₺</span>
+                    <div class="stat-label">Aylık Harcama İsteği</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">4 Milyar ₺</span>
+                    <div class="stat-label">Toplam Pazar/Yıl</div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>Neden Şimdi?</h3>
+                <p>🚀 AI patlaması (%300 talep artışı)</p>
+                <p>💻 COVID sonrası dijitalleşme hızlandı</p>
+                <p>🇹🇷 Henüz güçlü Türk rakip yok</p>
+                <p>🏛️ Devlet AI'ya teşvik veriyor</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Gelir Modeli -->
+        <div class="slide">
+            <div class="icon">💰</div>
+            <h2>GELİR MODELİ</h2>
+            <h3>Aylık Abonelik (Netflix Gibi)</h3>
+            
+            <div class="revenue-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Paket</th>
+                            <th>Fiyat</th>
+                            <th>Hedef Müşteri</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Temel</strong></td>
+                            <td>297₺/ay</td>
+                            <td>Küçük İşletmeler</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pro</strong></td>
+                            <td>497₺/ay</td>
+                            <td>Orta İşletmeler</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kurumsal</strong></td>
+                            <td>997₺/ay</td>
+                            <td>Büyük Şirketler</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>Kar Marjı: %75-85</strong> (Yazılım olduğu için maliyet düşük)</p>
+                <p><strong>Müşteri Yaşam Boyu Değeri: 24K ₺</strong></p>
+            </div>
+        </div>
+
+        <!-- Slide 6: 3 Yıllık Hedef -->
+        <div class="slide">
+            <div class="icon">📈</div>
+            <h2>3 YILLIK HEDEFLERİMİZ</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-number">2025</span>
+                    <div class="stat-label">1.500 Müşteri</div>
+                    <div class="stat-label"><strong>9M ₺</strong> Gelir</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">2026</span>
+                    <div class="stat-label">8.000 Müşteri</div>
+                    <div class="stat-label"><strong>50M ₺</strong> Gelir</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">2027</span>
+                    <div class="stat-label">25.000 Müşteri</div>
+                    <div class="stat-label"><strong>168M ₺</strong> Gelir</div>
+                </div>
+            </div>
+
+            <div class="big-number">168M ₺</div>
+            <p><strong>3. yıl hedef cirömız</strong></p>
+            
+            <div class="highlight-box">
+                <p>🎯 Türkiye'nin lider AI platformu olacağız!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Yatırım Talebi -->
+        <div class="slide">
+            <div class="icon">💎</div>
+            <h2>YATIRIM TALEBİ</h2>
+            <div class="big-number">5 Milyon ₺</div>
+            <p><strong>%17 hisse karşılığında</strong></p>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-number">2M ₺</span>
+                    <div class="stat-label">Ürün Geliştirme</div>
+                    <div class="stat-label">AI engine, platform</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">1.5M ₺</span>
+                    <div class="stat-label">Pazarlama</div>
+                    <div class="stat-label">Google, Meta reklamları</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">1M ₺</span>
+                    <div class="stat-label">Takım</div>
+                    <div class="stat-label">15 kişilik ekip</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">500K ₺</span>
+                    <div class="stat-label">Operasyon</div>
+                    <div class="stat-label">Ofis, yasal işler</div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>18 ayda hedef:</strong> 15K müşteri, 12M ₺ yıllık gelir</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Çıkış Stratejisi -->
+        <div class="slide">
+            <div class="icon">🚀</div>
+            <h2>ÇIKIŞ STRATEJİSİ</h2>
+            <h3>3-5 Yıl Sonra Şirket Satışı</h3>
+            
+            <div class="highlight-box">
+                <h3>Potansiyel Alıcılar:</h3>
+                <p>🔵 Microsoft, Google (AI portföyü)</p>
+                <p>📱 Turkcell, Türk Telekom (dijital hizmetler)</p>
+                <p>💼 Zendesk, Salesforce (yazılım devleri)</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-number">168M ₺</span>
+                    <div class="stat-label">3. Yıl Gelir</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">8-12x</span>
+                    <div class="stat-label">Sektör Çarpanı</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">1.5-2 Milyar ₺</span>
+                    <div class="stat-label">Beklenen Satış Değeri</div>
+                </div>
+            </div>
+
+            <div class="big-number">10-16x</div>
+            <p><strong>Yatırımcı getiri potansiyeli</strong></p>
+        </div>
+
+        <!-- Slide 9: Son -->
+        <div class="slide">
+            <div class="icon">🎯</div>
+            <h2>NEDEN ŞIMDI YATIRIM YAPIN?</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-number">İLK</span>
+                    <div class="stat-label">Türkiye'de bu alanda</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">15 Milyar ₺</span>
+                    <div class="stat-label">Boş pazar</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">10-16x</span>
+                    <div class="stat-label">Getiri potansiyeli</div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🔥 Bu Fırsat Neden Özel?</h3>
+                <p>✅ Dev pazar henüz boş</p>
+                <p>✅ AI patlaması tam zamanında</p>
+                <p>✅ Güçlü rakip yok henüz</p>
+                <p>✅ İlk Türk AI unicorn şansı</p>
+            </div>
+
+            
+
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Önceki</button>
+        <button class="nav-btn" onclick="nextSlide()">Sonraki →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Animate numbers when they appear
+            const statNumbers = slides[currentSlide].querySelectorAll('.stat-number, .big-number');
+            statNumbers.forEach(number => {
+                number.classList.add('animate-number');
+                setTimeout(() => {
+                    number.classList.remove('animate-number');
+                }, 1000);
+            });
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                previousSlide();
+            }
+        });
+
+        // Auto-advance (optional)
+        // setInterval(nextSlide, 10000); // 10 seconds per slide
+    </script>
+</body>
+</html>
