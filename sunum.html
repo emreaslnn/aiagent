@@ -16,6 +16,10 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             overflow: hidden;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            height: 100dvh; /* For mobile browsers */
         }
 
         .presentation-container {
@@ -32,10 +36,11 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 60px;
+            padding: 60px 40px 120px 40px;
             position: absolute;
             top: 0;
             left: 0;
+            overflow-y: auto;
         }
 
         .slide.active {
@@ -133,12 +138,16 @@
 
         .navigation {
             position: fixed;
-            bottom: 30px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 1rem;
-            z-index: 1000;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
         }
 
         .nav-btn {
@@ -160,12 +169,14 @@
 
         .slide-counter {
             position: fixed;
-            top: 30px;
-            right: 30px;
-            background: rgba(0,0,0,0.3);
-            padding: 10px 20px;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
             border-radius: 20px;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
         }
 
         .big-number {
@@ -252,23 +263,173 @@
 
         @media (max-width: 768px) {
             .slide {
-                padding: 30px;
+                padding: 40px 20px 140px 20px;
+                justify-content: flex-start;
+                padding-top: 80px;
             }
             
             .slide h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
+                margin-bottom: 1rem;
             }
             
             .slide h2 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+            }
+            
+            .slide h3 {
+                font-size: 1.4rem;
+                margin-bottom: 0.8rem;
             }
             
             .slide p {
-                font-size: 1.1rem;
+                font-size: 1rem;
+                line-height: 1.5;
+                margin-bottom: 0.8rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                margin: 1.5rem 0;
+            }
+            
+            .stat-box {
+                padding: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 1.8rem;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+            
+            .big-number {
+                font-size: 2.5rem;
+            }
+            
+            .problem-list {
+                max-width: 100%;
+                margin: 1rem auto;
+                text-align: left;
+            }
+            
+            .problem-list li {
+                font-size: 1rem;
+                margin-bottom: 0.8rem;
+                padding-left: 1.5rem;
+            }
+            
+            .problem-list li::before {
+                font-size: 1.2rem;
+            }
+            
+            .revenue-table {
+                padding: 1rem;
+                margin: 1rem 0;
+                overflow-x: auto;
+            }
+            
+            .revenue-table table {
+                font-size: 0.8rem;
+                min-width: 300px;
+            }
+            
+            .revenue-table th,
+            .revenue-table td {
+                padding: 0.5rem;
+            }
+            
+            .highlight-box {
+                padding: 1rem;
+                margin: 1rem 0;
+            }
+            
+            .icon {
+                font-size: 2.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .cta-button {
+                padding: 15px 25px;
+                font-size: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .navigation {
+                bottom: 15px;
+                gap: 0.5rem;
+                padding: 8px 15px;
+            }
+            
+            .nav-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .slide-counter {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .presentation-container {
+                height: 100vh;
+                height: 100dvh; /* Dynamic viewport height for mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 30px 15px 120px 15px;
+                padding-top: 70px;
+            }
+            
+            .slide h1 {
+                font-size: 1.8rem;
+            }
+            
+            .slide h2 {
+                font-size: 1.5rem;
+            }
+            
+            .slide h3 {
+                font-size: 1.2rem;
+            }
+            
+            .slide p {
+                font-size: 0.9rem;
             }
             
             .stats-grid {
                 grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+            
+            .big-number {
+                font-size: 2rem;
+            }
+            
+            .revenue-table th,
+            .revenue-table td {
+                padding: 0.3rem;
+                font-size: 0.7rem;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 0.3rem;
+                padding: 5px 10px;
+            }
+            
+            .nav-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+                width: 100px;
             }
         }
     </style>
@@ -550,8 +711,9 @@
                 <p>✅ İlk Türk AI unicorn şansı</p>
             </div>
 
+ 
             
-
+     
         </div>
     </div>
 
