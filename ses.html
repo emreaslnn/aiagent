@@ -140,24 +140,7 @@
         }
 
         .settings {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .settings h3 {
-            margin-bottom: 10px;
-            color: #555;
-        }
-
-        .webhook-url {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-size: 0.9em;
+            display: none;
         }
 
         .instructions {
@@ -194,22 +177,18 @@
         <div class="settings">
             <h3>Webhook Ayarları</h3>
             <input type="text" id="webhookUrl" class="webhook-url" 
-                   value="https://wasakem.app.n8n.cloud/webhook-test/voice_message" 
-                   placeholder="N8N Webhook URL">
+                   value="https://wasakem.app.n8n.cloud/webhook/voice_message" 
+                   readonly
         </div>
 
         <div class="instructions">
-            <strong>Kullanım:</strong><br>
-            • Butona basın ve konuşun<br>
-            • Ses kaydı N8N'e gönderilir ve AI ile işlenir<br>
-            • Yanıt sesi otomatik çalınır<br>
-            • Konuşma geçmişi hafızada tutulur<br><br>
+            <strong>Nasıl Çalışır:</strong><br>
+            • Butona basarak konuşmaya başlayın<br>
+            • Konuşmanız bittiğinde tekrar basın<br>
+            • Yapay zeka anlık olarak sesli yanıt verecek<br>
+            • Konuşma geçmişiniz otomatik kaydedilir<br><br>
             
-            <strong>N8N Workflow Süreci:</strong><br>
-            1. 🎤 Ses kaydı → Speech-to-Text (OpenAI Whisper)<br>
-            2. 🧠 AI Chat (GPT-4 + Memory)<br>
-            3. 🔊 Text-to-Speech (OpenAI TTS)<br>
-            4. ↩️ Binary ses dosyası döndürülür
+            <strong>💡 İpucu:</strong> En iyi deneyim için sessiz bir ortamda kullanın
         </div>
     </div>
 
@@ -223,14 +202,14 @@
                 this.recordText = document.getElementById('recordText');
                 this.status = document.getElementById('status');
                 this.chatHistory = document.getElementById('chatHistory');
-                this.webhookUrl = document.getElementById('webhookUrl');
+                this.webhookUrl = 'https://wasakem.app.n8n.cloud/webhook/voice_message';
                 
                 this.init();
             }
 
             async requestAudioFileFromN8N(fileName) {
-                // Bu fonksiyon artık kullanılmıyor çünkü N8N binary olarak döndürüyor
-                console.log('Binary yanıt bekleniyor, bu fonksiyon atlanıyor');
+                // Bu fonksiyon artık kullanılmıyor
+                console.log('Ses dosyası işleniyor...');
             }
 
             init() {
@@ -330,9 +309,9 @@
                     formData.append('timestamp', new Date().toISOString());
                     formData.append('user_id', 'web_user_' + Date.now());
 
-                    this.updateStatus('N8N ile iletişim kuruluyor...', 'processing');
+                    this.updateStatus('Yapay zeka düşünüyor...', 'processing');
 
-                    const response = await fetch(this.webhookUrl.value, {
+                    const response = await fetch(this.webhookUrl, {
                         method: 'POST',
                         body: formData
                     });
@@ -360,7 +339,7 @@
                             size: `${Math.round(audioBlob.size / 1024)} kB`,
                             type: contentType
                         });
-                        this.updateStatus('Sesli yanıt çalınıyor...', 'idle');
+                        this.updateStatus('Sesli yanıt hazırlanıyor...', 'processing');
                     } else {
                         // JSON yanıt geldi (hata durumu için)
                         const result = await response.json();
@@ -369,16 +348,19 @@
                     }
 
                 } catch (error) {
-                    console.error('N8N gönderme hatası:', error);
-                    this.updateStatus(`Gönderme hatası: ${error.message}`, 'error');
+                    console.error('Sesli asistan gönderme hatası:', error);
+                    this.updateStatus('Bağlantı hatası - tekrar deneyin', 'error');
                     
-                    // Hata detaylarını sohbet geçmişine ekle
-                    this.addMessage('assistant', `Hata: ${error.message}`);
+                    // Hata detaylarını kullanıcı dostu hale getir
+                    const userFriendlyError = error.message.includes('fetch') 
+                        ? 'Bağlantı hatası - lütfen tekrar deneyin'
+                        : 'Bir hata oluştu - lütfen tekrar deneyin';
+                    this.addMessage('assistant', userFriendlyError);
                 }
             }
 
             handleN8NResponse(result) {
-                console.log('N8N JSON yanıt detayı:', JSON.stringify(result, null, 2));
+                console.log('Sesli asistan yanıt detayı:', JSON.stringify(result, null, 2));
                 
                 // JSON yanıt geldiğinde (hata durumu veya alternatif format)
                 let textResponse = null;
@@ -393,11 +375,11 @@
                 
                 if (textResponse) {
                     this.addMessage('assistant', textResponse);
-                    this.updateStatus('Metin yanıt alındı', 'idle');
+                    this.updateStatus('Yanıt alındı', 'idle');
                 } else {
                     // Tüm yanıt objesini göster (debug için)
                     this.addMessage('assistant', `Beklenmeyen yanıt formatı: ${JSON.stringify(result)}`);
-                    this.updateStatus('Yanıt formatı tanınmadı', 'error');
+                    this.updateStatus('Beklenmeyen yanıt - tekrar deneyin', 'error');
                 }
             }
 
