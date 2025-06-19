@@ -222,6 +222,51 @@
                 this.init();
             }
 
+            async requestAudioFileFromN8N(fileName) {
+                try {
+                    this.updateStatus('Ses dosyası indiriliyor...', 'processing');
+                    
+                    // N8N'den dosya indirme isteği
+                    const response = await fetch(this.webhookUrl.value, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'get_audio_file',
+                            fileName: fileName,
+                            request_type: 'download'
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.file_url || result.download_url || result.audio_url) {
+                            const audioUrl = result.file_url || result.download_url || result.audio_url;
+                            this.playAudioResponse(audioUrl);
+                            this.addMessage('assistant', 'Sesli yanıt', null, audioUrl, {
+                                name: fileName,
+                                size: '125 kB',
+                                type: 'audio/mp3'
+                            });
+                            this.updateStatus('Sesli yanıt çalınıyor...', 'idle');
+                        } else {
+                            throw new Error('Dosya URL\'si alınamadı');
+                        }
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Ses dosyası indirme hatası:', error);
+                    this.updateStatus('Ses dosyası indirilemedi', 'error');
+                    
+                    // Alternatif: Kullanıcıya manuel indirme seçeneği sun
+                    this.addMessage('assistant', `Ses dosyası hazır: ${fileName} (125 kB) - Manuel indirme gerekebilir`);
+                }
+            }
+
             init() {
                 this.recordBtn.addEventListener('click', () => this.toggleRecording());
                 this.updateStatus('Mikrofon izni isteniyor...', 'processing');
@@ -370,6 +415,7 @@
                 // Farklı olası yanıt formatlarını kontrol et
                 let audioUrl = null;
                 let textResponse = null;
+                let audioData = null;
                 
                 // Audio URL'yi farklı alanlardan bul
                 if (result.audio_url) audioUrl = result.audio_url;
@@ -378,6 +424,10 @@
                 else if (result.audio) audioUrl = result.audio;
                 else if (result.voice) audioUrl = result.voice;
                 else if (result.sound) audioUrl = result.sound;
+                else if (result.file_url) audioUrl = result.file_url;
+                else if (result.fileUrl) audioUrl = result.fileUrl;
+                else if (result.download_url) audioUrl = result.download_url;
+                else if (result.url) audioUrl = result.url;
                 
                 // Metin yanıtını farklı alanlardan bul
                 if (result.text) textResponse = result.text;
@@ -386,14 +436,40 @@
                 else if (result.reply) textResponse = result.reply;
                 else if (result.answer) textResponse = result.answer;
                 
+                // Dosya bilgilerini kontrol et
+                if (result['File Name'] || result['file_name'] || result.fileName) {
+                    const fileName = result['File Name'] || result['file_name'] || result.fileName;
+                    const fileSize = result['File Size'] || result['file_size'] || result.fileSize;
+                    const mimeType = result['Mime Type'] || result['mime_type'] || result.mimeType;
+                    
+                    audioData = {
+                        name: fileName,
+                        size: fileSize,
+                        type: mimeType
+                    };
+                    
+                    console.log('Dosya bilgileri bulundu:', audioData);
+                    
+                    // Eğer ses dosyasıysa ve URL yoksa, N8N'den dosya URL'sini iste
+                    if (mimeType && mimeType.startsWith('audio/') && !audioUrl) {
+                        // N8N'den dosya indirme URL'si iste
+                        this.requestAudioFileFromN8N(fileName);
+                        return;
+                    }
+                }
+                
                 if (audioUrl) {
                     console.log('Sesli yanıt URL:', audioUrl);
                     this.playAudioResponse(audioUrl);
-                    this.addMessage('assistant', textResponse || 'Sesli yanıt', null, audioUrl);
+                    this.addMessage('assistant', textResponse || 'Sesli yanıt', null, audioUrl, audioData);
                     this.updateStatus('Sesli yanıt çalınıyor...', 'idle');
                 } else if (textResponse) {
                     this.addMessage('assistant', textResponse);
                     this.updateStatus('Metin yanıt alındı', 'idle');
+                } else if (audioData) {
+                    // Dosya bilgisi var ama URL yok
+                    this.addMessage('assistant', `Sesli yanıt hazırlandı: ${audioData.name} (${audioData.size})`);
+                    this.updateStatus('Sesli yanıt dosya bilgisi alındı, URL bekleniyor...', 'processing');
                 } else {
                     // Tüm yanıt objesini göster (debug için)
                     this.addMessage('assistant', `Yanıt alındı: ${JSON.stringify(result)}`);
@@ -455,7 +531,7 @@
                 }
             }
 
-            addMessage(sender, text, audioBlob = null, audioUrl = null) {
+            addMessage(sender, text, audioBlob = null, audioUrl = null, audioData = null) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${sender}`;
                 
@@ -473,6 +549,10 @@
                         <source src="${audioUrl}" type="audio/ogg">
                         Tarayıcınız bu ses formatını desteklemiyor.
                     </audio>`;
+                    
+                    if (audioData) {
+                        content += `<br><small style="color: #666;">📁 ${audioData.name} • ${audioData.size} • ${audioData.type}</small>`;
+                    }
                 }
                 
                 messageDiv.innerHTML = content;
