@@ -323,48 +323,136 @@
 
                     const response = await fetch(this.webhookUrl.value, {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
                     });
+
+                    console.log('HTTP Status:', response.status);
+                    console.log('Response Headers:', response.headers);
 
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
 
-                    const result = await response.json();
-                    console.log('N8N yanıtı:', result);
+                    // Yanıtı hem JSON hem de text olarak almaya çalış
+                    let result;
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await response.json();
+                    } else {
+                        const textResult = await response.text();
+                        console.log('Text yanıt:', textResult);
+                        try {
+                            result = JSON.parse(textResult);
+                        } catch {
+                            result = { message: textResult };
+                        }
+                    }
 
+                    console.log('N8N tam yanıtı:', result);
                     this.handleN8NResponse(result);
 
                 } catch (error) {
                     console.error('N8N gönderme hatası:', error);
                     this.updateStatus(`Gönderme hatası: ${error.message}`, 'error');
+                    
+                    // Hata detaylarını sohbet geçmişine ekle
+                    this.addMessage('assistant', `Hata: ${error.message}`);
                 }
             }
 
             handleN8NResponse(result) {
-                if (result.audio_url || result.audioUrl || result.response_audio) {
-                    // Sesli yanıt varsa çal
-                    const audioUrl = result.audio_url || result.audioUrl || result.response_audio;
+                console.log('N8N yanıt detayı:', JSON.stringify(result, null, 2));
+                
+                // Farklı olası yanıt formatlarını kontrol et
+                let audioUrl = null;
+                let textResponse = null;
+                
+                // Audio URL'yi farklı alanlardan bul
+                if (result.audio_url) audioUrl = result.audio_url;
+                else if (result.audioUrl) audioUrl = result.audioUrl;
+                else if (result.response_audio) audioUrl = result.response_audio;
+                else if (result.audio) audioUrl = result.audio;
+                else if (result.voice) audioUrl = result.voice;
+                else if (result.sound) audioUrl = result.sound;
+                
+                // Metin yanıtını farklı alanlardan bul
+                if (result.text) textResponse = result.text;
+                else if (result.message) textResponse = result.message;
+                else if (result.response) textResponse = result.response;
+                else if (result.reply) textResponse = result.reply;
+                else if (result.answer) textResponse = result.answer;
+                
+                if (audioUrl) {
+                    console.log('Sesli yanıt URL:', audioUrl);
                     this.playAudioResponse(audioUrl);
-                    this.addMessage('assistant', 'Sesli yanıt', null, audioUrl);
-                } else if (result.text || result.message || result.response) {
-                    // Sadece metin yanıt varsa
-                    const text = result.text || result.message || result.response;
-                    this.addMessage('assistant', text);
+                    this.addMessage('assistant', textResponse || 'Sesli yanıt', null, audioUrl);
+                    this.updateStatus('Sesli yanıt çalınıyor...', 'idle');
+                } else if (textResponse) {
+                    this.addMessage('assistant', textResponse);
+                    this.updateStatus('Metin yanıt alındı', 'idle');
                 } else {
-                    // Genel başarı mesajı
-                    this.addMessage('assistant', 'Mesajınız alındı ve işlendi.');
+                    // Tüm yanıt objesini göster (debug için)
+                    this.addMessage('assistant', `Yanıt alındı: ${JSON.stringify(result)}`);
+                    this.updateStatus('Yanıt alındı ancak ses/metin bulunamadı', 'error');
                 }
-
-                this.updateStatus('Yanıt alındı - Yeni mesaj için konuşabilirsiniz', 'idle');
             }
 
             playAudioResponse(audioUrl) {
-                const audio = new Audio(audioUrl);
-                audio.play().catch(error => {
-                    console.error('Ses çalma hatası:', error);
-                    this.updateStatus('Ses çalma hatası', 'error');
-                });
+                console.log('Ses çalma deneniyor:', audioUrl);
+                
+                // URL'nin geçerli olup olmadığını kontrol et
+                if (!audioUrl || audioUrl.trim() === '') {
+                    console.error('Geçersiz audio URL');
+                    this.updateStatus('Geçersiz ses URL\'si', 'error');
+                    return;
+                }
+                
+                try {
+                    const audio = new Audio();
+                    
+                    // Ses yükleme olayları
+                    audio.onloadstart = () => console.log('Ses yükleme başladı');
+                    audio.oncanplay = () => console.log('Ses çalmaya hazır');
+                    audio.onplay = () => {
+                        console.log('Ses çalmaya başladı');
+                        this.updateStatus('Sesli yanıt çalınıyor...', 'idle');
+                    };
+                    audio.onended = () => {
+                        console.log('Ses çalma tamamlandı');
+                        this.updateStatus('Yeni mesaj için konuşabilirsiniz', 'idle');
+                    };
+                    audio.onerror = (e) => {
+                        console.error('Ses çalma hatası:', e);
+                        console.error('Audio error details:', audio.error);
+                        this.updateStatus(`Ses çalma hatası: ${audio.error?.message || 'Bilinmeyen hata'}`, 'error');
+                    };
+                    
+                    // CORS sorunları için headers ekle
+                    audio.crossOrigin = 'anonymous';
+                    audio.src = audioUrl;
+                    
+                    // Ses çalmaya çalış
+                    const playPromise = audio.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise
+                            .then(() => {
+                                console.log('Ses başarıyla çalınıyor');
+                            })
+                            .catch(error => {
+                                console.error('Play promise hatası:', error);
+                                this.updateStatus(`Ses çalma hatası: ${error.message}`, 'error');
+                            });
+                    }
+                    
+                } catch (error) {
+                    console.error('Audio objesi oluşturma hatası:', error);
+                    this.updateStatus(`Ses çalma hatası: ${error.message}`, 'error');
+                }
             }
 
             addMessage(sender, text, audioBlob = null, audioUrl = null) {
@@ -379,7 +467,12 @@
                 }
                 
                 if (audioUrl) {
-                    content += `<br><audio controls class="audio-player"><source src="${audioUrl}"></audio>`;
+                    content += `<br><audio controls class="audio-player" preload="metadata">
+                        <source src="${audioUrl}" type="audio/mpeg">
+                        <source src="${audioUrl}" type="audio/wav">
+                        <source src="${audioUrl}" type="audio/ogg">
+                        Tarayıcınız bu ses formatını desteklemiyor.
+                    </audio>`;
                 }
                 
                 messageDiv.innerHTML = content;
