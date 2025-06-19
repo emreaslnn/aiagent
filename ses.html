@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N8N Sesli Asistan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .voice-controls {
+            margin: 30px 0;
+        }
+
+        .record-btn {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .record-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
+        }
+
+        .record-btn.recording {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            animation: pulse 1.5s infinite;
+        }
+
+        .record-btn.processing {
+            background: linear-gradient(45deg, #ffa726, #ff9800);
+            cursor: not-allowed;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .status.idle {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status.recording {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status.processing {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .chat-history {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .message.user {
+            background: #e3f2fd;
+            margin-left: 20px;
+        }
+
+        .message.assistant {
+            background: #f3e5f5;
+            margin-right: 20px;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .settings {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .settings h3 {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .webhook-url {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 10px;
+            font-size: 0.9em;
+            color: #2e7d32;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Sesli Asistan</h1>
+        
+        <div class="voice-controls">
+            <button id="recordBtn" class="record-btn">
+                <span id="recordText">Konuş</span>
+            </button>
+        </div>
+
+        <div id="status" class="status idle">
+            Konuşmaya başlamak için butona basın
+        </div>
+
+        <div class="chat-history" id="chatHistory">
+            <div class="message assistant">
+                <strong>Asistan:</strong> Merhaba! Size nasıl yardımcı olabilirim?
+            </div>
+        </div>
+
+        <div class="settings">
+            <h3>Webhook Ayarları</h3>
+            <input type="text" id="webhookUrl" class="webhook-url" 
+                   value="https://wasakem.app.n8n.cloud/webhook-test/voice_message" 
+                   placeholder="N8N Webhook URL">
+        </div>
+
+        <div class="instructions">
+            <strong>Kullanım:</strong><br>
+            • Butona basın ve konuşun<br>
+            • Ses kaydı otomatik olarak N8N'e gönderilir<br>
+            • Yanıt geldiğinde otomatik çalınır<br>
+            • Sohbet geçmişini takip edebilirsiniz
+        </div>
+    </div>
+
+    <script>
+        class VoiceChat {
+            constructor() {
+                this.isRecording = false;
+                this.mediaRecorder = null;
+                this.audioChunks = [];
+                this.recordBtn = document.getElementById('recordBtn');
+                this.recordText = document.getElementById('recordText');
+                this.status = document.getElementById('status');
+                this.chatHistory = document.getElementById('chatHistory');
+                this.webhookUrl = document.getElementById('webhookUrl');
+                
+                this.init();
+            }
+
+            init() {
+                this.recordBtn.addEventListener('click', () => this.toggleRecording());
+                this.updateStatus('Mikrofon izni isteniyor...', 'processing');
+                this.requestMicrophoneAccess();
+            }
+
+            async requestMicrophoneAccess() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            sampleRate: 44100
+                        } 
+                    });
+                    this.setupMediaRecorder(stream);
+                    this.updateStatus('Hazır - Konuşmaya başlayın', 'idle');
+                } catch (error) {
+                    console.error('Mikrofon erişimi reddedildi:', error);
+                    this.updateStatus('Mikrofon erişimi gerekli!', 'error');
+                }
+            }
+
+            setupMediaRecorder(stream) {
+                this.mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm;codecs=opus'
+                });
+
+                this.mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        this.audioChunks.push(event.data);
+                    }
+                };
+
+                this.mediaRecorder.onstop = () => {
+                    this.processRecording();
+                };
+            }
+
+            toggleRecording() {
+                if (!this.mediaRecorder) {
+                    this.updateStatus('Mikrofon henüz hazır değil', 'error');
+                    return;
+                }
+
+                if (this.isRecording) {
+                    this.stopRecording();
+                } else {
+                    this.startRecording();
+                }
+            }
+
+            startRecording() {
+                this.audioChunks = [];
+                this.mediaRecorder.start();
+                this.isRecording = true;
+                
+                this.recordBtn.classList.add('recording');
+                this.recordText.textContent = 'Dur';
+                this.updateStatus('🎤 Kayıt yapılıyor... Tekrar basın durdurmak için', 'recording');
+            }
+
+            stopRecording() {
+                this.mediaRecorder.stop();
+                this.isRecording = false;
+                
+                this.recordBtn.classList.remove('recording');
+                this.recordBtn.classList.add('processing');
+                this.recordText.textContent = 'İşleniyor...';
+                this.updateStatus('Ses işleniyor ve gönderiliyor...', 'processing');
+            }
+
+            async processRecording() {
+                try {
+                    const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                    
+                    // Kullanıcı mesajını sohbet geçmişine ekle
+                    this.addMessage('user', 'Ses mesajı gönderildi', audioBlob);
+                    
+                    // N8N webhook'una gönder
+                    await this.sendToN8N(audioBlob);
+                    
+                } catch (error) {
+                    console.error('Ses işleme hatası:', error);
+                    this.updateStatus('Ses işleme hatası!', 'error');
+                } finally {
+                    this.resetButton();
+                }
+            }
+
+            async sendToN8N(audioBlob) {
+                try {
+                    const formData = new FormData();
+                    formData.append('audio', audioBlob, 'voice_message.webm');
+                    formData.append('timestamp', new Date().toISOString());
+                    formData.append('user_id', 'web_user_' + Date.now());
+
+                    this.updateStatus('N8N ile iletişim kuruluyor...', 'processing');
+
+                    const response = await fetch(this.webhookUrl.value, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    console.log('N8N yanıtı:', result);
+
+                    this.handleN8NResponse(result);
+
+                } catch (error) {
+                    console.error('N8N gönderme hatası:', error);
+                    this.updateStatus(`Gönderme hatası: ${error.message}`, 'error');
+                }
+            }
+
+            handleN8NResponse(result) {
+                if (result.audio_url || result.audioUrl || result.response_audio) {
+                    // Sesli yanıt varsa çal
+                    const audioUrl = result.audio_url || result.audioUrl || result.response_audio;
+                    this.playAudioResponse(audioUrl);
+                    this.addMessage('assistant', 'Sesli yanıt', null, audioUrl);
+                } else if (result.text || result.message || result.response) {
+                    // Sadece metin yanıt varsa
+                    const text = result.text || result.message || result.response;
+                    this.addMessage('assistant', text);
+                } else {
+                    // Genel başarı mesajı
+                    this.addMessage('assistant', 'Mesajınız alındı ve işlendi.');
+                }
+
+                this.updateStatus('Yanıt alındı - Yeni mesaj için konuşabilirsiniz', 'idle');
+            }
+
+            playAudioResponse(audioUrl) {
+                const audio = new Audio(audioUrl);
+                audio.play().catch(error => {
+                    console.error('Ses çalma hatası:', error);
+                    this.updateStatus('Ses çalma hatası', 'error');
+                });
+            }
+
+            addMessage(sender, text, audioBlob = null, audioUrl = null) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                
+                let content = `<strong>${sender === 'user' ? 'Siz' : 'Asistan'}:</strong> ${text}`;
+                
+                if (audioBlob) {
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    content += `<br><audio controls class="audio-player"><source src="${audioUrl}" type="audio/webm"></audio>`;
+                }
+                
+                if (audioUrl) {
+                    content += `<br><audio controls class="audio-player"><source src="${audioUrl}"></audio>`;
+                }
+                
+                messageDiv.innerHTML = content;
+                this.chatHistory.appendChild(messageDiv);
+                this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+            }
+
+            updateStatus(message, type) {
+                this.status.textContent = message;
+                this.status.className = `status ${type}`;
+            }
+
+            resetButton() {
+                this.recordBtn.classList.remove('recording', 'processing');
+                this.recordText.textContent = 'Konuş';
+            }
+        }
+
+        // Uygulamayı başlat
+        document.addEventListener('DOMContentLoaded', () => {
+            new VoiceChat();
+        });
+    </script>
+</body>
+</html>
