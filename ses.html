@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>N8N Sesli Asistan</title>
+    <title>Sesli Asistan</title>
     <style>
         * {
             margin: 0;
@@ -191,25 +191,15 @@
             </div>
         </div>
 
-        <div class="settings">
-            <h3>Webhook Ayarları</h3>
-            <input type="text" id="webhookUrl" class="webhook-url" 
-                   value="https://wasakem.app.n8n.cloud/webhook-test/voice_message" 
-                   placeholder="N8N Webhook URL">
-        </div>
 
         <div class="instructions">
             <strong>Kullanım:</strong><br>
             • Butona basın ve konuşun<br>
-            • Ses kaydı N8N'e gönderilir ve AI ile işlenir<br>
+            • Ses kaydı ve AI ile işlenir<br>
             • Yanıt sesi otomatik çalınır<br>
             • Konuşma geçmişi hafızada tutulur<br><br>
             
-            <strong>N8N Workflow Süreci:</strong><br>
-            1. 🎤 Ses kaydı → Speech-to-Text (OpenAI Whisper)<br>
-            2. 🧠 AI Chat (GPT-4 + Memory)<br>
-            3. 🔊 Text-to-Speech (OpenAI TTS)<br>
-            4. ↩️ Binary ses dosyası döndürülür
+
         </div>
     </div>
 
@@ -330,7 +320,7 @@
                     formData.append('timestamp', new Date().toISOString());
                     formData.append('user_id', 'web_user_' + Date.now());
 
-                    this.updateStatus('N8N ile iletişim kuruluyor...', 'processing');
+                    this.updateStatus('AI ile iletişim kuruluyor...', 'processing');
 
                     const response = await fetch(this.webhookUrl.value, {
                         method: 'POST',
@@ -353,7 +343,7 @@
                         const audioBlob = await response.blob();
                         const audioUrl = URL.createObjectURL(audioBlob);
                         
-                        console.log('Binary ses dosyası alındı, boyut:', audioBlob.size);
+                       
                         this.playAudioResponse(audioUrl);
                         this.addMessage('assistant', 'Sesli yanıt', null, audioUrl, {
                             name: 'response_audio.mp3',
