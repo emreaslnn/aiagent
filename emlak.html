@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emlak Asistanı - Gayrimenkul Danışmanlığı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4facfe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            max-width: 1100px;
+            width: 100%;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid rgba(79, 172, 254, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #e3f2fd;
+        }
+
+        .header h1 {
+            color: #1565c0;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header .subtitle {
+            color: #1976d2;
+            font-size: 1.3em;
+            font-weight: 500;
+        }
+
+        .service-info {
+            background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e8 100%);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 2px solid #81c784;
+        }
+
+        .service-info h2 {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #1565c0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .service-info .description {
+            color: #388e3c;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            height: 100%;
+        }
+
+        .search-section {
+            background: #fafafa;
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            overflow-y: auto;
+        }
+
+        .search-section h3 {
+            color: #1565c0;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .search-categories {
+            margin-bottom: 25px;
+        }
+
+        .search-categories h4 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-bottom: 2px solid #81c784;
+            padding-bottom: 5px;
+        }
+
+        .search-item {
+            background: white;
+            margin: 12px 0;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #e3f2fd;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .search-item:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(21, 101, 192, 0.3);
+        }
+
+        .search-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .search-item-title {
+            font-weight: bold;
+            color: #1565c0;
+            font-size: 1.1em;
+        }
+
+        .search-item-price {
+            background: #1565c0;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .search-item-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .chat-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            min-height: 300px;
+        }
+
+        .message {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 15px;
+            animation: slideIn 0.4s ease;
+            line-height: 1.6;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            color: white;
+            margin-left: 30px;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .message.assistant {
+            background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
+            color: white;
+            margin-right: 30px;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+        }
+
+        .message.source {
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            color: white;
+            margin-right: 30px;
+            border: 3px solid #81c784;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 6px 18px rgba(76, 175, 80, 0.4);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-area {
+            display: flex;
+            gap: 12px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px;
+            border: 3px solid #81c784;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .message-input:focus {
+            border-color: #1976d2;
+            box-shadow: 0 0 15px rgba(25, 118, 210, 0.2);
+        }
+
+        .send-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.3);
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(21, 101, 192, 0.4);
+        }
+
+        .send-btn:disabled {
+            background: #9e9e9e;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-style: italic;
+            margin: 15px 0;
+            padding-left: 10px;
+        }
+
+        .typing-indicator.show {
+            display: flex;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
+            animation: typing 1.6s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.3s; }
+        .dot:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .quick-searches {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .quick-searches h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .quick-btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e8 100%);
+            color: #1565c0;
+            border: 2px solid #81c784;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .sources-info {
+            background: #e8f5e8;
+            border: 2px solid #81c784;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #2e7d32;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .container {
+                padding: 20px;
+                height: 95vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Emlak Asistanı</h1>
+            <div class="subtitle">Gayrimenkul Danışmanlığı & Emlak Arama</div>
+        </div>
+
+        <div class="service-info">
+            <h2>🤖 AI Destekli Emlak Danışmanı</h2>
+            <div class="description">Güncel verilerle emlak fiyatları, bölge analizi ve ilan araması</div>
+        </div>
+
+        <div class="sources-info">
+            📊 <strong>Veri Kaynakları:</strong> Emlakjet, Endeksa, Sahibinden ve diğer güncel emlak platformları
+        </div>
+
+        <div class="main-content">
+            <div class="search-section">
+                <h3>🔍 Emlak Arama Örnekleri</h3>
+                
+                <div class="search-categories">
+                    <h4>💰 Bütçe Odaklı Aramalar</h4>
+                    
+                    <div class="search-item" onclick="searchProperty('2 milyon TL bütçeyle İstanbul\'da ev arıyorum')">
+                        <div class="search-item-header">
+                            <span class="search-item-title">İstanbul - 2M TL</span>
+                            <span class="search-item-price">2.000.000₺</span>
+                        </div>
+                        <div class="search-item-description">
+                            2 milyon TL bütçeyle İstanbul'da ev seçenekleri
+                        </div>
+                    </div>
+
+                    <div class="search-item" onclick="searchProperty('3 milyon TL'ye Ankara'da villa arıyorum')">
+                        <div class="search-item-header">
+                            <span class="search-item-title">Ankara Villa - 3M TL</span>
+                            <span class="search-item-price">3.000.000₺</span>
+                        </div>
+                        <div class="search-item-description">
+                            3 milyon TL bütçeyle Ankara'da villa seçenekleri
+                        </div>
+                    </div>
+
+                    <div class="search-item" onclick="searchProperty('1.5 milyon TL'ye İzmir'de daire')">
+                        <div class="search-item-header">
+                            <span class="search-item-title">İzmir Daire - 1.5M TL</span>
+                            <span class="search-item-price">1.500.000₺</span>
+                        </div>
+                        <div class="search-item-description">
+                            1.5 milyon TL bütçeyle İzmir'de daire seçenekleri
+                        </div>
+                    </div>
+                </div>
+
+                <div class="search-categories">
+                    <h4>📍 Bölge Bazlı Aramalar</h4>
+                    
+                    <div class="search-item" onclick="searchProperty('Kadıköy'de ev fiyatları nasıl?')">
+                        <div class="search-item-header">
+                            <span class="search-item-title">Kadıköy Fiyatları</span>
+                            <span class="search-item-price">📈</span>
+                        </div>
+                        <div class="search-item-description">
+                            Kadıköy bölgesindeki güncel ev fiyatları ve ilan sayıları
+                        </div>
+                    </div>
+
+                    <div class="search-item" onclick="searchProperty('Çankaya'da kiralık ev var mı?')">
+                        <div class="search-item-header">
+                            <span class="search-item-title">Çankaya Kiralık</span>
+                            <span class="search-item-price">🏠</span>
+                        </div>
+                        <div class="search-item-description">
+                            Çankaya bölgesindeki kiralık ev seçenekleri
+                        </div>
+                    </div>
+
+                    <div class="search-item" onclick="searchProperty('Bornova'da yatırımlık daire')">
+                        <div class="search-item-header">
+                            <span class="search-item-title">Bornova Yatırım</span>
+                            <span class="search-item-price">💼</span>
+                        </div>
+                        <div class="search-item-description">
+                            Bornova'da yatırımlık daire fırsatları
+                        </div>
+                    </div>
+                </div>
+
+                <div class="search-categories">
+                    <h4>🏘️ Özel Talepler</h4>
+                    
+                    <div class="search-item" onclick="searchProperty('Deniz manzaralı ev arıyorum')">
+                        <div class="search-item-header">
+                            <span class="search-item-title">Deniz Manzaralı</span>
+                            <span class="search-item-price">🌊</span>
+                        </div>
+                        <div class="search-item-description">
+                            Deniz manzaralı gayrimenkul seçenekleri
+                        </div>
+                    </div>
+
+                    <div class="search-item" onclick="searchProperty('Bahçeli müstakil ev')">
+                        <div class="search-item-header">
+                            <span class="search-item-title">Bahçeli Müstakil</span>
+                            <span class="search-item-price">🌳</span>
+                        </div>
+                        <div class="search-item-description">
+                            Bahçeli müstakil ev seçenekleri ve fiyatları
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-section">
+                <div class="quick-searches">
+                    <h4>🚀 Hızlı Aramalar:</h4>
+                    <span class="quick-btn" onclick="askQuestion('Güncel konut fiyatları nasıl?')">Fiyat Analizi</span>
+                    <span class="quick-btn" onclick="askQuestion('En popüler bölgeler hangileri?')">Popüler Bölgeler</span>
+                    <span class="quick-btn" onclick="askQuestion('Yatırım tavsiyesi')">Yatırım</span>
+                    <span class="quick-btn" onclick="askQuestion('Randevu almak istiyorum')">Randevu</span>
+                </div>
+
+                <div class="chat-history" id="chatHistory">
+                    <div class="message assistant">
+                        <strong>🤖 Emlak Asistanı:</strong><br>
+                        Merhaba! Ben AI destekli emlak asistanınızım. 🏠<br>
+                        Emlakjet, Endeksa ve diğer platformlardan güncel verilerle size yardımcı olabilirim:<br><br>
+                        📋 <strong>Yapabileceklerim:</strong><br>
+                        • Bölge bazlı fiyat analizi<br>
+                        • Bütçenize uygun ilan arama<br>
+                        • Piyasa durumu değerlendirmesi<br>
+                        • Uzman danışman randevusu<br><br>
+                        Hangi konuda yardımcı olabilirim?
+                    </div>
+                </div>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    <span>Emlak veritabanı taranıyor</span>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+
+                <div class="input-area">
+                    <input type="text" id="messageInput" class="message-input" 
+                           placeholder="Emlak ihtiyacınızı yazın..." 
+                           onkeypress="handleKeyPress(event)">
+                    <button id="sendBtn" class="send-btn" onclick="sendMessage()">Ara</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class RealEstateConsultant {
+            constructor() {
+                this.webhookUrl = 'https://wasakem.app.n8n.cloud/webhook/emlak';
+                this.chatHistory = document.getElementById('chatHistory');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                
+                this.init();
+            }
+
+            init() {
+                this.messageInput.focus();
+            }
+
+            async sendMessage(message = null) {
+                const text = message || this.messageInput.value.trim();
+                
+                if (!text) return;
+
+                // Kullanıcı mesajını ekle
+                this.addMessage('user', text);
+                
+                // Input'u temizle ve devre dışı bırak
+                this.messageInput.value = '';
+                this.toggleInput(false);
+                
+                // Typing indicator göster
+                this.showTyping(true);
+
+                try {
+                    const response = await fetch(this.webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            question: text,
+                            timestamp: new Date().toISOString(),
+                            source: 'web_client'
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const result = await response.text();
+                    
+                    // Kaynak bilgisi kontrolü
+                    const hasSource = result.includes('Kaynak:') || 
+                                     result.includes('Emlakjet') || 
+                                     result.includes('Endeksa') ||
+                                     result.includes('Sahibinden');
+                    
+                    this.addMessage('assistant', result, hasSource);
+
+                } catch (error) {
+                    console.error('Emlak asistanı hatası:', error);
+                    this.addMessage('assistant', 
+                        'Üzgünüm, şu anda emlak veritabanına erişimde teknik bir sorun yaşıyoruz. Lütfen daha sonra tekrar deneyin veya doğrudan uzman danışmanımızla iletişime geçin.', 
+                        false, true);
+                } finally {
+                    this.showTyping(false);
+                    this.toggleInput(true);
+                    this.messageInput.focus();
+                }
+            }
+
+            addMessage(sender, text, hasSource = false, isError = false) {
+                const messageDiv = document.createElement('div');
+                let className = `message ${sender}`;
+                
+                if (hasSource) className += ' source';
+                
+                messageDiv.className = className;
+                
+                if (sender === 'user') {
+                    messageDiv.innerHTML = `<strong>👤 Siz:</strong><br>${text}`;
+                } else {
+                    const prefix = isError ? '❌ Sistem:' : '🤖 Emlak Asistanı:';
+                    messageDiv.innerHTML = `<strong>${prefix}</strong><br>${text}`;
+                }
+                
+                this.chatHistory.appendChild(messageDiv);
+                this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+            }
+
+            showTyping(show) {
+                this.typingIndicator.classList.toggle('show', show);
+                if (show) {
+                    this.chatHistory.scrollTop = this.chatHistory.scrollHeight + 60;
+                }
+            }
+
+            toggleInput(enabled) {
+                this.messageInput.disabled = !enabled;
+                this.sendBtn.disabled = !enabled;
+                this.sendBtn.textContent = enabled ? 'Ara' : 'Arıyor...';
+            }
+
+            handleKeyPress(event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    this.sendMessage();
+                }
+            }
+        }
+
+        // Global fonksiyonlar
+        let realEstateConsultant;
+
+        function sendMessage() {
+            realEstateConsultant.sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            realEstateConsultant.handleKeyPress(event);
+        }
+
+        function askQuestion(question) {
+            realEstateConsultant.sendMessage(question);
+        }
+
+        function searchProperty(query) {
+            realEstateConsultant.sendMessage(query);
+        }
+
+        // Uygulamayı başlat
+        document.addEventListener('DOMContentLoaded', () => {
+            realEstateConsultant = new RealEstateConsultant();
+        });
+    </script>
+</body>
+</html>
