@@ -292,8 +292,8 @@
             <div class="subtitle">Yapay Zeka Destekli Profesyonel Hizmetler</div>
             <div class="description">
                 Modern AI teknolojisiyle desteklenen, kullanıcı dostu hizmet platformumuzda 
-                sesli asistan, sağlık danışmanlığı, hukuki bilgilendirme, restoran siparişi ve 
-                emlak danışmanlığı hizmetlerinden faydalanabilirsiniz.
+                sesli asistan, sağlık danışmanlığı, hukuki bilgilendirme, restoran siparişi, 
+                emlak danışmanlığı ve sigorta hizmetlerinden faydalanabilirsiniz.
             </div>
         </div>
 
@@ -401,7 +401,21 @@
                 <button class="service-button">Emlak Ara</button>
             </div>
         </div>
-
+        <div class="service-card insurance animate-on-scroll" onclick="openService('insurance')">
+             <div class="service-icon">🛡️</div>
+                <h2 class="service-title">Sigorta Danışmanlığı</h2>
+              <p class="service-description">
+                    Tüm sigorta türlerinde AI destekli danışmanlık ve teklif hizmetleri.
+              </p>
+                <ul class="service-features">
+                    <li>Trafik & Kasko sigortası</li>
+                    <li>Sağlık & Hayat sigortası</li>
+                    <li>Konut & Seyahat sigortası</li>
+                    <li>Fiyat karşılaştırması</li>
+                    <li>Uzman danışman randevusu</li>
+                </ul>
+                <button class="service-button">Sigorta Danışmanlığı</button>
+        </div>
         <div class="footer animate-on-scroll">
             <div class="tech-info">
                 <h3>🔧 Teknoloji Altyapısı</h3>
@@ -447,7 +461,8 @@
                 'health': 'saglikasistan.html', 
                 'legal': 'avukatasistan.html',
                 'restaurant': 'restoran.html',
-                'realestate': 'emlak.html'
+                'realestate': 'emlak.html',
+                'insurance': 'sigorta.html'
             };
 
             const servicePage = services[serviceType];
