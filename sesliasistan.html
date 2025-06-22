@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Sesli Asistan</title>
     <style>
         * {
@@ -41,42 +39,6 @@
             font-weight: 300;
         }
 
-        /* iOS Audio Unlock Prompt */
-        .audio-unlock-prompt {
-            background: linear-gradient(45deg, #4facfe, #00f2fe);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        .audio-unlock-prompt h3 {
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .audio-unlock-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .audio-unlock-btn:hover {
-            background: white;
-            color: #4facfe;
-        }
-
-        @keyframes glow {
-            from { box-shadow: 0 0 20px rgba(79, 172, 254, 0.5); }
-            to { box-shadow: 0 0 30px rgba(79, 172, 254, 0.8); }
-        }
-
         .voice-controls {
             margin: 30px 0;
         }
@@ -101,11 +63,6 @@
         .record-btn:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
-        }
-
-        .record-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .record-btn.recording {
@@ -182,6 +139,10 @@
             margin: 10px 0;
         }
 
+        .settings {
+            display: none;
+        }
+
         .instructions {
             margin-top: 20px;
             padding: 15px;
@@ -191,45 +152,20 @@
             color: #2e7d32;
             text-align: left;
         }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* iOS Safari özel düzenlemeler */
-        @supports (-webkit-touch-callout: none) {
-            .container {
-                padding: 20px;
-            }
-            
-            .record-btn {
-                -webkit-tap-highlight-color: transparent;
-                user-select: none;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎤 Sesli Asistan</h1>
         
-        <!-- iOS için ses unlock prompt -->
-        <div id="audioUnlockPrompt" class="audio-unlock-prompt">
-            <h3>🔊 iPhone için Ses Etkinleştirme</h3>
-            <p>iPhone Safari'de ses çalabilmek için önce etkinleştirme gerekiyor.</p>
-            <button id="unlockAudioBtn" class="audio-unlock-btn">
-                Sesi Etkinleştir
-            </button>
-        </div>
-        
         <div class="voice-controls">
-            <button id="recordBtn" class="record-btn" disabled>
+            <button id="recordBtn" class="record-btn">
                 <span id="recordText">Konuş</span>
             </button>
         </div>
 
         <div id="status" class="status idle">
-            Konuşmaya başlamak için önce sesi etkinleştirin
+            Konuşmaya başlamak için butona basın
         </div>
 
         <div class="chat-history" id="chatHistory">
@@ -238,14 +174,21 @@
             </div>
         </div>
 
+        <div class="settings">
+            <h3>Webhook Ayarları</h3>
+            <input type="text" id="webhookUrl" class="webhook-url" 
+                   value="https://wasakem.app.n8n.cloud/webhook/voice_message" 
+                   readonly
+        </div>
+
         <div class="instructions">
-            <strong>iPhone Kullanım Talimatları:</strong><br>
-            1️⃣ Önce "Sesi Etkinleştir" butonuna tıklayın<br>
-            2️⃣ Mikrofon iznini verin<br>
-            3️⃣ Konuşmak için kırmızı butona basın<br>
-            4️⃣ Konuştuktan sonra tekrar basıp durdurun<br><br>
+            <strong>Nasıl Çalışır:</strong><br>
+            • Butona basarak konuşmaya başlayın<br>
+            • Konuşmanız bittiğinde tekrar basın<br>
+            • Yapay zeka anlık olarak sesli yanıt verecek<br>
+            • Konuşma geçmişiniz otomatik kaydedilir<br><br>
             
-            <strong>💡 İpucu:</strong> Sessiz ortamda en iyi sonuçları alırsınız
+            <strong>💡 İpucu:</strong> En iyi deneyim için sessiz bir ortamda kullanın
         </div>
     </div>
 
@@ -260,68 +203,19 @@
                 this.status = document.getElementById('status');
                 this.chatHistory = document.getElementById('chatHistory');
                 this.webhookUrl = 'https://wasakem.app.n8n.cloud/webhook/voice_message';
-                this.audioUnlocked = false;
-                this.audioContext = null;
                 
                 this.init();
             }
 
+            async requestAudioFileFromN8N(fileName) {
+                // Bu fonksiyon artık kullanılmıyor
+                console.log('Ses dosyası işleniyor...');
+            }
+
             init() {
-                // iOS detect
-                this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-                
-                // Event listeners
-                document.getElementById('unlockAudioBtn').addEventListener('click', () => this.unlockAudio());
                 this.recordBtn.addEventListener('click', () => this.toggleRecording());
-                
-                // iOS için özel başlangıç
-                if (this.isIOS) {
-                    this.updateStatus('iPhone tespit edildi - önce sesi etkinleştirin', 'idle');
-                } else {
-                    // iOS değilse direkt mikrofon iste
-                    this.hideUnlockPrompt();
-                    this.requestMicrophoneAccess();
-                }
-            }
-
-            async unlockAudio() {
-                try {
-                    // AudioContext oluştur ve unlock et
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    
-                    if (this.audioContext.state === 'suspended') {
-                        await this.audioContext.resume();
-                    }
-                    
-                    // Sessiz bir ses çal (iOS unlock için)
-                    const oscillator = this.audioContext.createOscillator();
-                    const gainNode = this.audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(this.audioContext.destination);
-                    
-                    gainNode.gain.value = 0.01; // Çok sessiz
-                    oscillator.frequency.value = 440;
-                    oscillator.type = 'sine';
-                    
-                    oscillator.start();
-                    oscillator.stop(this.audioContext.currentTime + 0.1);
-                    
-                    this.audioUnlocked = true;
-                    this.hideUnlockPrompt();
-                    this.updateStatus('Ses etkinleştirildi! Mikrofon izni isteniyor...', 'processing');
-                    
-                    // Şimdi mikrofon erişimi iste
-                    await this.requestMicrophoneAccess();
-                    
-                } catch (error) {
-                    console.error('Audio unlock hatası:', error);
-                    this.updateStatus('Ses etkinleştirme hatası - tekrar deneyin', 'error');
-                }
-            }
-
-            hideUnlockPrompt() {
-                document.getElementById('audioUnlockPrompt').classList.add('hidden');
+                this.updateStatus('Mikrofon izni isteniyor...', 'processing');
+                this.requestMicrophoneAccess();
             }
 
             async requestMicrophoneAccess() {
@@ -334,7 +228,6 @@
                         } 
                     });
                     this.setupMediaRecorder(stream);
-                    this.recordBtn.disabled = false;
                     this.updateStatus('Hazır - Konuşmaya başlayın', 'idle');
                 } catch (error) {
                     console.error('Mikrofon erişimi reddedildi:', error);
@@ -343,17 +236,8 @@
             }
 
             setupMediaRecorder(stream) {
-                // iOS Safari için format kontrolü
-                let mimeType = 'audio/webm;codecs=opus';
-                if (!MediaRecorder.isTypeSupported(mimeType)) {
-                    mimeType = 'audio/mp4';
-                    if (!MediaRecorder.isTypeSupported(mimeType)) {
-                        mimeType = 'audio/wav';
-                    }
-                }
-
                 this.mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: mimeType
+                    mimeType: 'audio/webm;codecs=opus'
                 });
 
                 this.mediaRecorder.ondataavailable = (event) => {
@@ -404,7 +288,10 @@
                 try {
                     const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
                     
+                    // Kullanıcı mesajını sohbet geçmişine ekle
                     this.addMessage('user', 'Ses mesajı gönderildi', audioBlob);
+                    
+                    // N8N webhook'una gönder
                     await this.sendToN8N(audioBlob);
                     
                 } catch (error) {
@@ -429,13 +316,19 @@
                         body: formData
                     });
 
+                    console.log('HTTP Status:', response.status);
+                    console.log('Response Headers:', response.headers);
+
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
 
+                    // N8N binary audio yanıtını direkt al
                     const contentType = response.headers.get('content-type');
+                    console.log('Content-Type:', contentType);
 
                     if (contentType && contentType.startsWith('audio/')) {
+                        // Binary ses dosyası geldi
                         const audioBlob = await response.blob();
                         const audioUrl = URL.createObjectURL(audioBlob);
                         
@@ -446,66 +339,85 @@
                             size: `${Math.round(audioBlob.size / 1024)} kB`,
                             type: contentType
                         });
+                        this.updateStatus('Sesli yanıt hazırlanıyor...', 'processing');
                     } else {
+                        // JSON yanıt geldi (hata durumu için)
                         const result = await response.json();
+                        console.log('JSON yanıt:', result);
                         this.handleN8NResponse(result);
                     }
 
                 } catch (error) {
                     console.error('Sesli asistan gönderme hatası:', error);
                     this.updateStatus('Bağlantı hatası - tekrar deneyin', 'error');
-                    this.addMessage('assistant', 'Bağlantı hatası - lütfen tekrar deneyin');
+                    
+                    // Hata detaylarını kullanıcı dostu hale getir
+                    const userFriendlyError = error.message.includes('fetch') 
+                        ? 'Bağlantı hatası - lütfen tekrar deneyin'
+                        : 'Bir hata oluştu - lütfen tekrar deneyin';
+                    this.addMessage('assistant', userFriendlyError);
                 }
             }
 
             handleN8NResponse(result) {
+                console.log('Sesli asistan yanıt detayı:', JSON.stringify(result, null, 2));
+                
+                // JSON yanıt geldiğinde (hata durumu veya alternatif format)
                 let textResponse = null;
                 
+                // Metin yanıtını farklı alanlardan bul
                 if (result.text) textResponse = result.text;
                 else if (result.message) textResponse = result.message;
                 else if (result.response) textResponse = result.response;
+                else if (result.reply) textResponse = result.reply;
+                else if (result.answer) textResponse = result.answer;
                 else if (result.error) textResponse = `Hata: ${result.error}`;
                 
                 if (textResponse) {
                     this.addMessage('assistant', textResponse);
                     this.updateStatus('Yanıt alındı', 'idle');
                 } else {
-                    this.addMessage('assistant', `Beklenmeyen yanıt formatı`);
+                    // Tüm yanıt objesini göster (debug için)
+                    this.addMessage('assistant', `Beklenmeyen yanıt formatı: ${JSON.stringify(result)}`);
                     this.updateStatus('Beklenmeyen yanıt - tekrar deneyin', 'error');
                 }
             }
 
-            async playAudioResponse(audioUrl) {
-                if (!this.audioUnlocked) {
-                    console.log('Audio henüz unlock edilmedi');
-                    this.updateStatus('Ses çalmak için tekrar etkinleştirin', 'error');
+            playAudioResponse(audioUrl) {
+                console.log('Ses çalma deneniyor:', audioUrl);
+                
+                // URL'nin geçerli olup olmadığını kontrol et
+                if (!audioUrl || audioUrl.trim() === '') {
+                    console.error('Geçersiz audio URL');
+                    this.updateStatus('Geçersiz ses URL\'si', 'error');
                     return;
                 }
-
+                
                 try {
                     const audio = new Audio();
                     
-                    // iOS için özel ayarlar
-                    if (this.isIOS) {
-                        audio.preload = 'auto';
-                        audio.controls = false;
-                    }
-                    
+                    // Ses yükleme olayları
+                    audio.onloadstart = () => console.log('Ses yükleme başladı');
                     audio.oncanplay = () => console.log('Ses çalmaya hazır');
                     audio.onplay = () => {
-                        this.updateStatus('🔊 Sesli yanıt çalınıyor...', 'idle');
+                        console.log('Ses çalmaya başladı');
+                        this.updateStatus('Sesli yanıt çalınıyor...', 'idle');
                     };
                     audio.onended = () => {
+                        console.log('Ses çalma tamamlandı');
                         this.updateStatus('Yeni mesaj için konuşabilirsiniz', 'idle');
                     };
                     audio.onerror = (e) => {
                         console.error('Ses çalma hatası:', e);
-                        this.updateStatus('Ses çalma hatası', 'error');
+                        console.error('Audio error details:', audio.error);
+                        this.updateStatus(`Ses çalma hatası: ${audio.error?.message || 'Bilinmeyen hata'}`, 'error');
                     };
                     
+                    // CORS sorunları için headers ekle
+                    audio.crossOrigin = 'anonymous';
                     audio.src = audioUrl;
                     
-                    // iOS için user gesture içinde çal
+                    // Ses çalmaya çalış
                     const playPromise = audio.play();
                     
                     if (playPromise !== undefined) {
@@ -539,8 +451,8 @@
                 if (audioUrl) {
                     content += `<br><audio controls class="audio-player" preload="metadata">
                         <source src="${audioUrl}" type="audio/mpeg">
-                        <source src="${audioUrl}" type="audio/mp4">
                         <source src="${audioUrl}" type="audio/wav">
+                        <source src="${audioUrl}" type="audio/ogg">
                         Tarayıcınız bu ses formatını desteklemiyor.
                     </audio>`;
                     
