@@ -1,7 +1,7 @@
 // Aslan Otel Chat Widget - AI Agent Uyumlu
 class AslanOtelChatWidget {
     constructor(options = {}) {
-        this.webhookUrl = options.webhookUrl || 'https://wasakem.app.n8n.cloud/webhook/327ad1a1-8098-45c7-b685-f60094f3c947/chat';
+        this.webhookUrl = options.webhookUrl || 'https://veridostu.app.n8n.cloud/webhook/327ad1a1-8098-45c7-b685-f60094f3c947/chat';
         this.position = options.position || 'left'; // left veya right
         this.isOpen = false;
         this.isTyping = false;
