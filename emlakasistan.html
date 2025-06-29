@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emlak Danışmanı - AI Asistan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .phone-container {
+            width: 360px;
+            height: 640px;
+            background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 
+                0 0 50px rgba(255, 255, 255, 0.1),
+                inset 0 0 20px rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+            border-radius: 30px;
+            padding: 30px 20px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .time {
+            font-weight: 600;
+        }
+
+        .battery {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .company-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .company-logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .company-name {
+            font-size: 26px;
+            font-weight: 300;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .company-subtitle {
+            font-size: 14px;
+            color: #e67e22;
+            font-weight: 500;
+        }
+
+        .call-info {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .contact-name {
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .contact-avatar {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background-image: url('');
+            background-size: cover;
+            background-position: center;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            margin: 25px 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .contact-avatar.calling {
+            animation: breathe 2s ease-in-out infinite;
+        }
+
+        .contact-avatar.connected {
+            border: 4px solid #e67e22;
+            animation: pulse-orange 1.5s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes pulse-orange {
+            0%, 100% { box-shadow: 0 0 20px rgba(230, 126, 34, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(230, 126, 34, 0.6); }
+        }
+
+        .call-status {
+            font-size: 18px;
+            color: #aaaaaa;
+            margin-bottom: 20px;
+            min-height: 25px;
+        }
+
+        .call-duration {
+            font-size: 16px;
+            color: #ffffff;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .audio-visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+            margin: 20px 0;
+        }
+
+        .audio-bar {
+            width: 4px;
+            background: linear-gradient(to top, #e67e22, #f39c12);
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .call-btn {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #e67e22, #d35400);
+            color: white;
+        }
+
+        .end-btn {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .mute-btn.active {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .speaker-btn.active {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .property-btn {
+            background: linear-gradient(45deg, #27ae60, #229954);
+        }
+
+        .location-btn {
+            background: linear-gradient(45deg, #8e44ad, #7d3c98);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .notification {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 14px;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .notification.success {
+            background: rgba(39, 174, 96, 0.2);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .notification.info {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .service-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #aaaaaa;
+        }
+
+        /* Vapi varsayılan butonunu özelleştir */
+        [id*="vapi"] {
+            bottom: 20px !important;
+            right: 20px !important;
+            z-index: 999 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="phone-screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="time" id="currentTime">09:41</div>
+                <div class="battery">
+                    <span>📶</span>
+                    <span>🔋</span>
+                </div>
+            </div>
+
+            <!-- Company Header -->
+            <div class="company-header">
+                <div class="company-logo">🏢</div>
+                <div class="company-name">Emlak Danışmanı</div>
+                <div class="company-subtitle">AI Gayrimenkul Uzmanı</div>
+            </div>
+
+            <!-- Call Info -->
+            <div class="call-info">
+                <div class="contact-name">Emlak Uzmanı</div>
+                
+                <div class="contact-avatar" id="avatar"></div>
+
+                <div class="call-status" id="callStatus">Danışmanlık için arayın</div>
+                <div class="call-duration hidden" id="callDuration">00:00</div>
+
+                <!-- Audio Visualizer -->
+                <div class="audio-visualizer" id="audioVisualizer">
+                    <div class="audio-bar" style="height: 10px;"></div>
+                    <div class="audio-bar" style="height: 15px;"></div>
+                    <div class="audio-bar" style="height: 8px;"></div>
+                    <div class="audio-bar" style="height: 20px;"></div>
+                    <div class="audio-bar" style="height: 12px;"></div>
+                    <div class="audio-bar" style="height: 18px;"></div>
+                    <div class="audio-bar" style="height: 6px;"></div>
+                    <div class="audio-bar" style="height: 14px;"></div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button class="control-btn mute-btn" id="muteBtn" title="Sessize Al">
+                    🎤
+                </button>
+
+                <button class="control-btn call-btn" id="callBtn" title="Danışmanı Ara">
+                    📞
+                </button>
+
+                <button class="control-btn speaker-btn" id="speakerBtn" title="Hoparlör">
+                    🔊
+                </button>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn property-btn" title="Emlak Portföyü">
+                    🏠
+                </button>
+
+                <button class="control-btn end-btn hidden" id="endBtn" title="Görüşmeyi Sonlandır">
+                    📵
+                </button>
+
+                <button class="control-btn location-btn" title="Konum Bilgisi">
+                    📍
+                </button>
+            </div>
+
+            <!-- Service Info -->
+            <div class="service-info">
+                Satılık • Kiralık • Değerleme • Yatırım Danışmanlığı
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div class="notification" id="notification"></div>
+    </div>
+     
+    <script src="emlak.js"></script>
+    
+    <!-- Widget'ı başlatın -->
+    <script>
+        // Sayfa yüklendiğinde widget'ı başlat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sol tarafta chat widget
+            const chatWidget = new AslanOtelChatWidget({
+                position: 'left', // 'left' veya 'right'
+                
+            });
+        });
+    </script>
+    <!-- Vapi Sesli Asistan Entegrasyonu -->
+    <script>
+        var vapiInstance = null;
+        const assistant = "ee2cdce4-1bd9-41c3-9842-e5153df848cb"; // Emlak asistan ID'sini buraya yazın
+        const apiKey = "bb9f01f2-08dc-4485-87f7-e4924b08d89d"; // Vapi Public API Key
+
+        // Vapi buton konfigürasyonu
+        const buttonConfig = {
+            position: "bottom-right",
+            offset: "20px",
+            width: "60px",
+            height: "60px",
+            idle: {
+                color: `linear-gradient(135deg, #e67e22 0%, #d35400 100%)`,
+                type: "pill", 
+                title: "🏢 Emlak Danışmanı",
+                subtitle: "Gayrimenkul için konuşun",
+            },
+            loading: {
+                color: `linear-gradient(135deg, #f39c12 0%, #e67e22 100%)`,
+                type: "pill", 
+                title: "🔄 Bağlanıyor",
+                subtitle: "Uzman danışmanınız geliyor...",
+            },
+            active: {
+                color: `linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)`,
+                type: "pill",
+                title: "🔴 Danışmanlık",
+                subtitle: "Bitirmek için tıklayın", 
+            },
+        };
+
+        (function (d, t) {
+            var g = document.createElement(t),
+                s = d.getElementsByTagName(t)[0];
+            g.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
+            g.defer = true;
+            g.async = true;
+            s.parentNode.insertBefore(g, s);
+            
+            g.onload = function () {
+                console.log('Vapi SDK yüklendi');
+                
+                vapiInstance = window.vapiSDK.run({
+                    apiKey: apiKey,
+                    assistant: assistant,
+                    config: buttonConfig,
+                });
+
+                // Vapi eventlerini dinle
+                if (vapiInstance) {
+                    vapiInstance.on('call-start', onCallStart);
+                    vapiInstance.on('call-end', onCallEnd);
+                    vapiInstance.on('volume-level', onVolumeLevel);
+                    vapiInstance.on('error', onCallError);
+                    vapiInstance.on('speech-start', onSpeechStart);
+                    vapiInstance.on('speech-end', onSpeechEnd);
+
+                    showNotification('🏢 Emlak Danışmanı AI hazır!', 'success');
+                }
+            };
+
+            g.onerror = function() {
+                console.error('Vapi SDK yüklenemedi');
+                showNotification('❌ Emlak danışmanı yüklenemedi', 'error');
+            };
+        })(document, "script");
+
+        // Global değişkenler
+        let isCallActive = false;
+        let callStartTime = null;
+        let durationInterval = null;
+        let audioVisualizerInterval = null;
+
+        // Vapi event handlers
+        function onCallStart() {
+            isCallActive = true;
+            callStartTime = new Date();
+            
+            document.getElementById('callStatus').textContent = 'Emlak uzmanıyla konuşuyorsunuz';
+            document.getElementById('callDuration').classList.remove('hidden');
+            document.getElementById('avatar').classList.add('connected');
+            document.getElementById('callBtn').classList.add('hidden');
+            document.getElementById('endBtn').classList.remove('hidden');
+            
+            durationInterval = setInterval(updateCallDuration, 1000);
+            audioVisualizerInterval = setInterval(animateAudioVisualizer, 150);
+            
+            showNotification('🏢 Emlak danışmanıyla görüşme başladı', 'success');
+        }
+
+        function onCallEnd() {
+            resetCallUI();
+            showNotification('📞 Danışmanlık tamamlandı. İyi günler!', 'info');
+        }
+
+        function onVolumeLevel(volume) {
+            const bars = document.querySelectorAll('.audio-bar');
+            const intensity = volume * 30 + 5;
+            bars.forEach((bar) => {
+                const randomHeight = Math.random() * intensity + 5;
+                bar.style.height = randomHeight + 'px';
+            });
+        }
+
+        function onCallError(error) {
+            console.error('Vapi hatası:', error);
+            showNotification('❌ Bağlantı hatası: ' + error.message, 'error');
+            resetCallUI();
+        }
+
+        function onSpeechStart() {
+            document.getElementById('callStatus').textContent = 'Talebinizi dinliyorum...';
+        }
+
+        function onSpeechEnd() {
+            document.getElementById('callStatus').textContent = 'Emlak önerilerini hazırlıyor...';
+        }
+
+        // UI fonksiyonları
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('tr-TR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        function updateCallDuration() {
+            if (!callStartTime) return;
+            
+            const now = new Date();
+            const duration = Math.floor((now - callStartTime) / 1000);
+            const minutes = Math.floor(duration / 60).toString().padStart(2, '0');
+            const seconds = (duration % 60).toString().padStart(2, '0');
+            
+            document.getElementById('callDuration').textContent = `${minutes}:${seconds}`;
+        }
+
+        function animateAudioVisualizer() {
+            if (!isCallActive) return;
+            
+            const bars = document.querySelectorAll('.audio-bar');
+            bars.forEach(bar => {
+                const height = Math.random() * 25 + 5;
+                bar.style.height = height + 'px';
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        function resetCallUI() {
+            isCallActive = false;
+            callStartTime = null;
+            
+            if (durationInterval) {
+                clearInterval(durationInterval);
+                durationInterval = null;
+            }
+            
+            if (audioVisualizerInterval) {
+                clearInterval(audioVisualizerInterval);
+                audioVisualizerInterval = null;
+            }
+            
+            document.getElementById('callStatus').textContent = 'Danışmanlık için arayın';
+            document.getElementById('callDuration').classList.add('hidden');
+            document.getElementById('avatar').classList.remove('calling', 'connected');
+            document.getElementById('callBtn').classList.remove('hidden');
+            document.getElementById('endBtn').classList.add('hidden');
+            
+            const bars = document.querySelectorAll('.audio-bar');
+            bars.forEach((bar, index) => {
+                bar.style.height = (Math.random() * 15 + 5) + 'px';
+            });
+        }
+
+        // Button event listeners
+        document.getElementById('callBtn').addEventListener('click', () => {
+            if (vapiInstance) {
+                vapiInstance.start();
+            } else {
+                showNotification('⏳ Emlak danışmanı henüz hazır değil, lütfen bekleyin...', 'error');
+            }
+        });
+
+        document.getElementById('endBtn').addEventListener('click', () => {
+            if (vapiInstance && isCallActive) {
+                vapiInstance.stop();
+            }
+        });
+
+        document.getElementById('muteBtn').addEventListener('click', function() {
+            this.classList.toggle('active');
+            const isMuted = this.classList.contains('active');
+            this.textContent = isMuted ? '🎤❌' : '🎤';
+            
+            if (vapiInstance && isCallActive) {
+                vapiInstance.setMuted(isMuted);
+            }
+            
+            showNotification(isMuted ? '🔇 Mikrofon kapatıldı' : '🎤 Mikrofon açıldı', 'info');
+        });
+
+        document.getElementById('speakerBtn').addEventListener('click', function() {
+            this.classList.toggle('active');
+            const isActive = this.classList.contains('active');
+            this.textContent = isActive ? '🔊✅' : '🔊';
+            
+            showNotification(isActive ? '🔊 Hoparlör açık' : '🔊 Hoparlör normal', 'info');
+        });
+
+        // Info buttons
+        document.querySelector('.property-btn').addEventListener('click', () => {
+            showNotification('🏠 Portföy için "Satılık ev önerisi istiyorum" deyin', 'info');
+        });
+
+        document.querySelector('.location-btn').addEventListener('click', () => {
+            showNotification('📍 Konum için "Şu bölgede emlak arıyorum" deyin', 'info');
+        });
+
+        // Sayfa yüklendiğinde
+        window.addEventListener('load', () => {
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Hoş geldin mesajı
+            setTimeout(() => {
+                showNotification('🏢 Emlak Danışmanı\'na hoş geldiniz! AI uzmanla konuşun.', 'success');
+            }, 2000);
+            
+            // Kullanım ipucu
+            setTimeout(() => {
+                showNotification('💡 İpucu: Satılık/kiralık ev, yatırım fırsatları sorabilirsiniz', 'info');
+            }, 8000);
+        });
+
+        // Sayfa kapatılırken aramayı sonlandır
+        window.addEventListener('beforeunload', () => {
+            if (isCallActive && vapiInstance) {
+                vapiInstance.stop();
+            }
+        });
+    </script>
+</body>
+</html>

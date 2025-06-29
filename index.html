@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veridostu - Yapay Zeka Sesli Asistan Hizmetleri</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <img src="logo.svg" alt="Veridostu Logo" class="brand-logo">
+                </div>
+                
+                <div class="nav-menu" id="navMenu">
+                    <a href="#home" class="nav-link active">Ana Sayfa</a>
+                    <a href="#services" class="nav-link">Hizmetler</a>
+                    <a href="#demos" class="nav-link">Demolar</a>
+                    <a href="#about" class="nav-link">Hakkımızda</a>
+                    <a href="#contact" class="nav-link">İletişim</a>
+                </div>
+                
+                <div class="nav-toggle" id="navToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background">
+            <div class="gradient-overlay"></div>
+            <div class="animated-bg">
+                <div class="floating-shape shape-1"></div>
+                <div class="floating-shape shape-2"></div>
+                <div class="floating-shape shape-3"></div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        <span class="title-line">Yapay Zeka Destekli</span>
+                        <span class="title-line gradient-text">Sesli Asistan</span>
+                        <span class="title-line">Hizmetleri</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        İşletmeniz için akıllı telefon asistanı ve sesli danışmanlık çözümleri. 
+                        24/7 müşteri desteği, otomatik rezervasyon sistemi ve sektörel uzmanlık.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#demos" class="btn btn-primary">
+                            <span>Demo'ları İncele</span>
+                            <i class="btn-icon">▶</i>
+                        </a>
+                        <a href="#contact" class="btn btn-secondary">
+                            <span>İletişime Geç</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="hero-visual">
+                    <div class="phone-mockup">
+                        <div class="phone-frame">
+                            <div class="phone-screen">
+                                <div class="ai-avatar">
+                                    <div class="avatar-circle">
+                                        <div class="pulse-ring"></div>
+                                        <img src="logo.svg" alt="Veridostu" class="avatar-logo">
+                                    </div>
+                                </div>
+                                <div class="voice-waves">
+                                    <div class="wave"></div>
+                                    <div class="wave"></div>
+                                    <div class="wave"></div>
+                                    <div class="wave"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Hizmetlerimiz</h2>
+                <p class="section-subtitle">
+                    İşletmenizin ihtiyaçlarına özel yapay zeka destekli sesli asistan çözümleri
+                </p>
+            </div>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">📞</div>
+                    <h3 class="service-title">Telefon Asistanı</h3>
+                    <p class="service-description">
+                        Gelen aramaları otomatik karşılayan, müşteri sorularını yanıtlayan ve yönlendiren akıllı telefon asistanı.
+                    </p>
+                    <ul class="service-features">
+                        <li>24/7 kesintisiz hizmet</li>
+                        <li>Doğal konuşma deneyimi</li>
+                        <li>Çoklu dil desteği</li>
+                        <li>Arama kayıtları ve raporlama</li>
+                    </ul>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">🏠</div>
+                    <h3 class="service-title">Emlak Danışmanlığı</h3>
+                    <p class="service-description">
+                        Gayrimenkul sektörüne özel AI asistan. Emlak portföyü, fiyat bilgileri ve yatırım tavsiyeleri.
+                    </p>
+                    <ul class="service-features">
+                        <li>Portföy yönetimi</li>
+                        <li>Piyasa analizi</li>
+                        <li>Müşteri görüşme kayıtları</li>
+                        <li>Randevu planlaması</li>
+                    </ul>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">🏨</div>
+                    <h3 class="service-title">Otel Resepsiyonu</h3>
+                    <p class="service-description">
+                        Otel ve konaklama işletmeleri için rezervasyon, oda servisi ve misafir hizmetleri asistanı.
+                    </p>
+                    <ul class="service-features">
+                        <li>Rezervasyon yönetimi</li>
+                        <li>Oda durumu sorgulama</li>
+                        <li>Hizmet talep alma</li>
+                        <li>Check-in/out işlemleri</li>
+                    </ul>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">💼</div>
+                    <h3 class="service-title">İş Danışmanlığı</h3>
+                    <p class="service-description">
+                        İşletmenizin özel ihtiyaçlarına yönelik kişiselleştirilmiş AI asistan geliştirme ve entegrasyon.
+                    </p>
+                    <ul class="service-features">
+                        <li>Özel sektör çözümleri</li>
+                        <li>Mevcut sistemlere entegrasyon</li>
+                        <li>Eğitim ve destek</li>
+                        <li>Sürekli güncellemeler</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demos" class="demos">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Şimdi Deneyin</h2>
+                <p class="section-subtitle">
+                    Gerçek zamanlı AI asistanlarımızı test edin ve deneyimleyin
+                </p>
+            </div>
+            
+            <div class="demos-grid">
+                <div class="demo-card">
+                    <div class="demo-preview">
+                        <div class="demo-phone">
+                            <div class="demo-screen">
+                                <div class="demo-header">
+                                    <div class="demo-icon">🏢</div>
+                                    <div class="demo-title">Emlak Danışmanı</div>
+                                </div>
+                                <div class="demo-avatar">
+                                    <div class="avatar-ring"></div>
+                                </div>
+                                <div class="demo-status">Danışmanlık için arayın</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-content">
+                        <h3 class="demo-name">Emlak Asistanı</h3>
+                        <p class="demo-description">
+                            Gayrimenkul portföyü, fiyat bilgileri ve yatırım tavsiyeleri için AI emlak uzmanı.
+                        </p>
+                        <div class="demo-features">
+                            <span class="feature-tag">Satılık Evler</span>
+                            <span class="feature-tag">Kiralık Ofisler</span>
+                            <span class="feature-tag">Değerleme</span>
+                        </div>
+                        <a href="emlakasistan.html" class="demo-btn" target="_blank">
+                            <span>Demo'yu Dene</span>
+                            <i class="btn-arrow">→</i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-preview">
+                        <div class="demo-phone">
+                            <div class="demo-screen">
+                                <div class="demo-header">
+                                    <div class="demo-icon">🏨</div>
+                                    <div class="demo-title">Aslan Otel</div>
+                                </div>
+                                <div class="demo-avatar">
+                                    <div class="avatar-ring"></div>
+                                </div>
+                                <div class="demo-status">Konuşmaya hazır</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-content">
+                        <h3 class="demo-name">Otel Asistanı</h3>
+                        <p class="demo-description">
+                            Rezervasyon, oda bilgileri ve otel hizmetleri için 24/7 AI resepsiyon asistanı.
+                        </p>
+                        <div class="demo-features">
+                            <span class="feature-tag">Rezervasyon</span>
+                            <span class="feature-tag">Oda Servisi</span>
+                            <span class="feature-tag">Bilgi</span>
+                        </div>
+                        <a href="otelasistan.html" class="demo-btn" target="_blank">
+                            <span>Demo'yu Dene</span>
+                            <i class="btn-arrow">→</i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2 class="section-title">Veridostu Hakkında</h2>
+                    <p class="about-description">
+                        <strong>Veridostu</strong>, işletmeler için yapay zeka destekli sesli asistan çözümleri 
+                        geliştiren yenilikçi bir teknoloji şirketidir. Müşteri deneyimini artırmak ve 
+                        operasyonel verimliliği optimize etmek amacıyla sektörel AI asistanları tasarlar 
+                        ve geliştiriyoruz.
+                    </p>
+                    <div class="about-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">🎯</div>
+                            <div class="feature-content">
+                                <h4>Sektörel Uzmanlık</h4>
+                                <p>Her sektörün özel ihtiyaçlarına uygun AI asistan çözümleri</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚡</div>
+                            <div class="feature-content">
+                                <h4>Hızlı Entegrasyon</h4>
+                                <p>Mevcut sistemlerinize kolayca entegre edilebilen çözümler</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔒</div>
+                            <div class="feature-content">
+                                <h4>Güvenli & Güvenilir</h4>
+                                <p>Veri güvenliği ve gizlilik öncelikli geliştirme yaklaşımı</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Kesintisiz Hizmet</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">AI</div>
+                            <div class="stat-label">Yapay Zeka</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">∞</div>
+                            <div class="stat-label">Sınırsız Çağrı</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">TR</div>
+                            <div class="stat-label">Türkçe Destek</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">İletişim</h2>
+                <p class="section-subtitle">
+                    İşletmeniz için özel AI asistan çözümü hakkında konuşalım
+                </p>
+            </div>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-details">
+                            <h4>E-posta</h4>
+                            <a href="mailto:info@veridostu.com">info@veridostu.com</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">📱</div>
+                        <div class="contact-details">
+                            <h4>Telefon</h4>
+                            <a href="tel:+905462313825">+90 546 231 38 25</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">💬</div>
+                        <div class="contact-details">
+                            <h4>WhatsApp</h4>
+                            <a href="https://wa.me/905462313825">Mesaj Gönder</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" id="name" name="name" placeholder="Adınız Soyadınız" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder="E-posta Adresiniz" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="phone" name="phone" placeholder="Telefon Numaranız">
+                        </div>
+                        <div class="form-group">
+                            <select id="service" name="service" required>
+                                <option value="">Hangi hizmetle ilgileniyorsunuz?</option>
+                                <option value="telefon-asistani">Telefon Asistanı</option>
+                                <option value="emlak-danismanligi">Emlak Danışmanlığı</option>
+                                <option value="otel-resepsiyonu">Otel Resepsiyonu</option>
+                                <option value="is-danismanligi">İş Danışmanlığı</option>
+                                <option value="diger">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" name="message" placeholder="Mesajınız" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary full-width">
+                            <span>Mesaj Gönder</span>
+                            <i class="btn-icon">✉</i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="logo.svg" alt="Veridostu Logo" class="footer-logo">
+                    <p class="footer-description">
+                        Yapay zeka destekli sesli asistan hizmetleri ile işletmenizin müşteri deneyimini bir üst seviyeye taşıyın.
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Hizmetler</h4>
+                        <a href="#services">Telefon Asistanı</a>
+                        <a href="#services">Emlak Danışmanlığı</a>
+                        <a href="#services">Otel Resepsiyonu</a>
+                        <a href="#services">İş Danışmanlığı</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Demolar</h4>
+                        <a href="emlakasistan.html" target="_blank">Emlak Asistanı</a>
+                        <a href="otelasistan.html" target="_blank">Otel Asistanı</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>İletişim</h4>
+                        <a href="mailto:info@veridostu.com">E-posta</a>
+                        <a href="tel:+905462313825">Telefon</a>
+                        <a href="https://wa.me/905462313825">WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Veridostu. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
